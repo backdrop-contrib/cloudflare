@@ -1,0 +1,4 @@
+name = Cloudflare
+description = "Administer your Cloudflare account and report Threats and Spam."
+package = Spam Prevention
+core = 6.x
