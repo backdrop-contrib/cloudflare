@@ -44,7 +44,6 @@ function cloudflare_admin_submit($form, &$form_state) {
   variable_set('cloudflare_api_key', $form_values['api_key']);
 }
 
-
 /**
 * Implementation of hook_form_FORM_ID_alter().
 */
@@ -67,12 +66,20 @@ function cloudflare_form_comment_admin_overview_alter(&$form, $form_state) {
     //'cloudflare_report_spam_delete' => t('Report Spam + Delete Comment'),
   );
   
-  if (isset($form_state['input']['operation'])) {
-    //$form['#after_build'][] = 'cloudflare_comment_admin_overview_after_build'; //Calls function
+  // append a submit handler that will proces after the default form handler is finished.
+  $form['#submit'][] = 'cloudflare_form_comment_admin_overview_submit';
+
+  //dpm($form);
+  return $form;
+}
+
+function cloudflare_form_comment_admin_overview_submit($form, &$form_state) {
+  //dpm($form_state);
+  if (isset($form_state['values']['operation'])) {
     $operation = $form_state['input']['operation'];
 
-    if (isset($form_state['input']['comments'])) {
-      $cids = $form_state['input']['comments'];
+    if (isset($form_state['values']['comments'])) {
+      $cids = $form_state['values']['comments'];
 
       foreach ($cids as $cid => $value) {
         switch($operation) 
@@ -111,26 +118,8 @@ function cloudflare_form_comment_admin_overview_alter(&$form, $form_state) {
      cache_clear_all();
     }        
   }
-  
+
   return $form;
-}
-
-//function cloudflare_comment_admin_overview_after_build($form, &$form_state) {
-//
-//}
-
-function cloudflare_form_alter(&$form, $form_state, $form_id)  {
-//  switch ($form_id)  {
-//    case 'comment_admin_overview':
-//      if (isset($form_state['input']['operation'])) {
-//        $form['#after_build'][] = 'cloudflare_comment_admin_overview_after_build'; //Calls function
-//        $form_state['redirect'] = 'admin/content/comment/approval';
-//      }
-//      break;
-//   
-//    return $form;
-//    
-//   }
 }
 
 
@@ -509,7 +498,7 @@ function _cloudflare_delete_comment($cid) {
   
   // hackity hacky hack: set error reporting to hide errors due to bug report http://drupal.org/node/1761042
   //error_reporting(E_ALL ^ E_NOTICE);
-  error_reporting(0);
+  //error_reporting(0);
 
   $num_deleted = db_delete('comment')
   ->condition('cid', $cid)
