@@ -13,6 +13,17 @@ function cloudflare_menu() {
   return $items;
 }
 
+/**
+* Implements hook_permission().
+*/
+function cloudflare_permission() {
+  return array(
+    'administer cloudflare' => array(
+      'title' => t('Administer Cloudflare'),
+      'description' => t('Perform administration tasks for Cloudflare.'),
+    ),
+  );
+}
 
 /**
 * cloudflare_menu() page callback function.
