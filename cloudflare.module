@@ -80,12 +80,10 @@ function cloudflare_form_comment_admin_overview_alter(&$form, $form_state) {
   // append a submit handler that will proces after the default form handler is finished.
   $form['#submit'][] = 'cloudflare_form_comment_admin_overview_submit';
 
-  //dpm($form);
   return $form;
 }
 
 function cloudflare_form_comment_admin_overview_submit($form, &$form_state) {
-  //dpm($form_state);
   if (isset($form_state['values']['operation'])) {
     $operation = $form_state['input']['operation'];
 
@@ -96,26 +94,21 @@ function cloudflare_form_comment_admin_overview_submit($form, &$form_state) {
         switch($operation) 
         {
           case 'cloudflare_ban_ip':
-            dpm($operation);
             _cloudflare_ban_comment($cid, FALSE);
             break;
           case 'cloudflare_ban_ip_delete':
-            //dpm($operation);
             _cloudflare_ban_comment($cid, TRUE);
             break;
           case 'cloudflare_whitelist_ip':
-            //dpm($operation);
             _cloudflare_whitelist_comment($cid, FALSE);
             break;
           case 'cloudflare_whitelist_ip_publish':
-            //dpm($operation);
             _cloudflare_whitelist_comment($cid, TRUE);
             break;
           case 'cloudflare_spam':
             _cloudflare_spam_report($cid, FALSE);
             break;
           case 'cloudflare_spam_delete':
-            //dpm($operation);
             _cloudflare_spam_report($cid, TRUE);
             break;        
           // TODO: Integrate with undocumented Spam API
