@@ -1,4 +1,51 @@
 <?php
+
+
+define('CLOUDFLARE_URL_IPV4_RANGE', 'https://www.cloudflare.com/ips-v4');
+define('CLOUDFLARE_ALWAYSONLINE_USER_AGENT', 'Mozilla/5.0 (compatible; CloudFlare-AlwaysOnline/1.0; +http://www.cloudflare.com/always-online) AppleWebKit/534.34');
+
+/**
+* Implementation of hook_boot().
+* 
+* Replace $_SERVER['REMOTE_ADDR'] with $_SERVER['HTTP_CF_CONNECTING_IP'] header
+* Properly flag $_SERVER['HTTPS'] and set the base-url correctly if cloudflare is using flexible SSL 
+*/
+function cloudflare_boot() {
+  global $base_url;
+
+  // Assign a proper IP address for end-client connecting via cloudflare
+  $trusted = FALSE;
+  if (!empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
+    // If an array of known reverse proxy IPs is provided, then trust
+    // the CF header if request really comes from one of them or from a cloudflare IP.
+    $reverse_proxy_addresses = variable_get('reverse_proxy_addresses', array());
+    $connecting_ip = $_SERVER['REMOTE_ADDR'];
+
+    if (in_array($connecting_ip, $reverse_proxy_addresses) || cloudflare_ip_address_in_range($connecting_ip)) {
+      $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_CF_CONNECTING_IP'];
+      $trusted = TRUE;
+    }
+  }
+
+  // Properly flag the request as a HTTPS request if CloudFlare's flexible SSL is being used
+  if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' && empty($_SERVER['HTTPS'])) {
+    if ($trusted || in_array($connecting_ip, $reverse_proxy_addresses) || ip_address_in_range($connecting_ip, cloudflare_ips())) {
+      $_SERVER['HTTPS'] = 'on';
+      if (!empty($base_url)) {
+        if (substr($base_url, 0, 7) == 'http://') {
+          
+        }
+      }
+    }
+  }
+
+  // Check for AlwaysOnline spider and set appropriate cache-control headers
+  if (!empty($_SERVER['HTTP_USER_AGENT'])  && $_SERVER['HTTP_USER_AGENT'] == CLOUDFLARE_ALWAYSONLINE_USER_AGENT) {
+    drupal_add_http_header('Cache-Control', 'public, max-age=86400');
+    drupal_add_http_header('Vary', 'User-Agent');
+  }
+}
+
 /**
 * Implementation of hook_menu().
 */
@@ -462,12 +509,59 @@ function _cloudflare_settings() {
        'cf_api_ssl_host'=>"ssl://www.cloudflare.com",
        'cf_api_https_host'=>"https://www.cloudflare.com",
        'cf_api_port'=>443,
-       'cf_ip_ranges'=>array("204.93.240.0/24", "204.93.177.0/24", "199.27.128.0/21", "173.245.48.0/20", "103.22.200.0/22", "141.101.64.0/18", "108.162.192.0/18", "190.93.240.0/20"),
+       'cf_ip_ranges'=>cloudflare_ip_ranges(),
        'my_ip'=>$_SERVER["REMOTE_ADDR"],
     );
   }
   return $cloudflare_settings;
 }
+
+/**
+* Get a list of cloudflare IP Ranges
+*/
+function cloudflare_ip_ranges() {
+  if ($cache = cache_get('cloudflare_ip_ranges')) {
+    return $cache->data;
+  }
+  else {
+    $ip_blocks = file_get_contents(CLOUDFLARE_URL_IPV4_RANGE);
+    $cloudflare_ips = explode("\n", $ip_blocks);
+    $cloudflare_ips = array_map('trim', $cloudflare_ips);
+
+    cache_set('cloudflare_ip_ranges', $cloudflare_ips);
+    return $cloudflare_ips;
+  }
+}
+
+/**
+* Given an IP range like 8.8.8.0/24, check to see if an IP address is in it
+*/
+function cloudflare_ip_address_in_range($checkip, $range = FALSE) {
+  if (!$range) {
+    $range = cloudflare_ip_ranges();
+  }
+  if (is_array($range)) {
+    foreach ($range as $ip_range) {
+      if (ip_address_in_range($checkip, $ip_range)) {
+        return TRUE;
+      }
+    }
+    return FALSE;
+  }
+
+  @list($ip, $len) = explode('/', $range);
+
+  if (($min = ip2long($ip)) !== false && !is_null($len)) {
+    $clong = ip2long($checkip);
+    $max = ($min | (1<<(32-$len))-1);
+    if ($clong > $min && $clong < $max) {
+      return TRUE;
+    } else {
+      return FALSE;
+    }
+  }
+}
+
 
 
 /**

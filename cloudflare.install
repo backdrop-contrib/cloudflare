@@ -1,0 +1,8 @@
+<?php
+
+/**
+ * cloudflare module now implements hook_boot. Add the boot flag in the systems table.
+ */
+function cloudflare_update_7001() {
+  db_update('system')->fields(array('bootstrap' => 1))->condition('name', 'cloudflare')->execute();
+}
