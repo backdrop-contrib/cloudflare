@@ -1,6 +1,5 @@
 <?php
 
-
 define('CLOUDFLARE_URL_IPV4_RANGE', 'https://www.cloudflare.com/ips-v4');
 define('CLOUDFLARE_ALWAYSONLINE_USER_AGENT', 'Mozilla/5.0 (compatible; CloudFlare-AlwaysOnline/1.0; +http://www.cloudflare.com/always-online) AppleWebKit/534.34');
 
@@ -22,6 +21,7 @@ function cloudflare_boot() {
     $connecting_ip = $_SERVER['REMOTE_ADDR'];
 
     if (in_array($connecting_ip, $reverse_proxy_addresses) || cloudflare_ip_address_in_range($connecting_ip)) {
+      $_SERVER['ORIG_REMOTE_ADDR'] = $connecting_ip;
       $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_CF_CONNECTING_IP'];
       $trusted = TRUE;
     }
@@ -31,11 +31,6 @@ function cloudflare_boot() {
   if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' && empty($_SERVER['HTTPS'])) {
     if ($trusted || in_array($connecting_ip, $reverse_proxy_addresses) || ip_address_in_range($connecting_ip, cloudflare_ips())) {
       $_SERVER['HTTPS'] = 'on';
-      if (!empty($base_url)) {
-        if (substr($base_url, 0, 7) == 'http://') {
-          
-        }
-      }
     }
   }
 
@@ -504,13 +499,13 @@ function _cloudflare_settings() {
   static $cloudflare_settings;
   if (!isset($cloudflare_settings)) {
     $cloudflare_settings = array(
-       'cf_api_email'=>variable_get('cloudflare_api_email',FALSE),
-       'cf_api_key'=>variable_get('cloudflare_api_key',FALSE),
-       'cf_api_ssl_host'=>"ssl://www.cloudflare.com",
-       'cf_api_https_host'=>"https://www.cloudflare.com",
-       'cf_api_port'=>443,
-       'cf_ip_ranges'=>cloudflare_ip_ranges(),
-       'my_ip'=>$_SERVER["REMOTE_ADDR"],
+       'cf_api_email' => variable_get('cloudflare_api_email',FALSE),
+       'cf_api_key' => variable_get('cloudflare_api_key',FALSE),
+       'cf_api_ssl_host' => "ssl://www.cloudflare.com",
+       'cf_api_https_host' => "https://www.cloudflare.com",
+       'cf_api_port' => 443,
+       'cf_ip_ranges' => cloudflare_ip_ranges(),
+       'my_ip' => $_SERVER["REMOTE_ADDR"],
     );
   }
   return $cloudflare_settings;
@@ -542,7 +537,7 @@ function cloudflare_ip_address_in_range($checkip, $range = FALSE) {
   }
   if (is_array($range)) {
     foreach ($range as $ip_range) {
-      if (ip_address_in_range($checkip, $ip_range)) {
+      if (cloudflare_ip_address_in_range($checkip, $ip_range)) {
         return TRUE;
       }
     }
