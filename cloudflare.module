@@ -15,17 +15,19 @@ function cloudflare_boot() {
 
   // Assign a proper IP address for end-client connecting via cloudflare
   $trusted = FALSE;
-  if (!empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
-    // If an array of known reverse proxy IPs is provided, then trust
-    // the CF header if request really comes from one of them or from a cloudflare IP.
-    $reverse_proxy_addresses = variable_get('reverse_proxy_addresses', array());
-    $connecting_ip = $_SERVER['REMOTE_ADDR'];
+  if (variable_get('cloudflare_cf_connecting_ip', FALSE)) {
+    if (!empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
+      // If an array of known reverse proxy IPs is provided, then trust
+      // the CF header if request really comes from one of them or from a cloudflare IP.
+      $reverse_proxy_addresses = variable_get('reverse_proxy_addresses', array());
+      $connecting_ip = $_SERVER['REMOTE_ADDR'];
 
-    if (in_array($connecting_ip, $reverse_proxy_addresses) || cloudflare_ip_address_in_range($connecting_ip)) {
-      $_SERVER['ORIG_REMOTE_ADDR'] = $connecting_ip;
-      $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_CF_CONNECTING_IP'];
-      $trusted = TRUE;
-      $conf['reverse_proxy'] = FALSE; // Disable any furthur reverse proxy handling
+      if (in_array($connecting_ip, $reverse_proxy_addresses) || cloudflare_ip_address_in_range($connecting_ip)) {
+        $_SERVER['ORIG_REMOTE_ADDR'] = $connecting_ip;
+        $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_CF_CONNECTING_IP'];
+        $trusted = TRUE;
+        $conf['reverse_proxy'] = FALSE; // Disable any furthur reverse proxy handling.
+      }
     }
   }
 
