@@ -11,6 +11,7 @@ define('CLOUDFLARE_ALWAYSONLINE_USER_AGENT', 'Mozilla/5.0 (compatible; CloudFlar
 */
 function cloudflare_boot() {
   global $base_url;
+  global $conf;
 
   // Assign a proper IP address for end-client connecting via cloudflare
   $trusted = FALSE;
@@ -24,6 +25,7 @@ function cloudflare_boot() {
       $_SERVER['ORIG_REMOTE_ADDR'] = $connecting_ip;
       $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_CF_CONNECTING_IP'];
       $trusted = TRUE;
+      $conf['reverse_proxy'] = FALSE; // Disable any furthur reverse proxy handling
     }
   }
 
