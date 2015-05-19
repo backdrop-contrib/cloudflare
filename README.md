@@ -60,3 +60,14 @@ sub vcl_deliver {
   }
 }
 ```
+
+Agressive Caching
+-----------------
+
+CloudFlare allows aggressive caching of HTML pages via custom page-rules. If you enable this option in your CloudFlare settings CloudFlare will serve the entire page out of cache, omitting a call to Drupal entirely. This can be problematic if logged-in users (or admin users) see the page differently than regular users. An example of this would be menus that only logged in users can see. In this case it's quite possible for CloudFlare to aggressively cache the "logged-in user" view of the page and serve everyone this view!   
+
+There are two ways to fix this:
+
+1. Set up a different domain name for administrative users. For example, you would have both admin.example.com and www.example.com pointing to the same drupal site, and you would instruct your admin users to use admin.example.com.  In your cloudflare settings you would turn off cloudflare for admin.example.com but keep it enabled for the regular www.example.com. 
+
+2. Disable aggressive page caching. If you *must* allow users to login via the same domain as anonymous users, then aggressive caching likely isn’t for you unless you have the skill to implement AJAX based menus and user-dependent content. Generally in this situation aggressive page caching shouldn't be used.
