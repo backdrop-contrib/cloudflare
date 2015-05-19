@@ -46,3 +46,17 @@ Using a reverse proxy
 
 If your site is behind a reverse-proxy such as varnish, you should configure your outer reverse proxy to strip incoming cloudflare specific headers (CF-Connecting-IP, CF-Railgun, CF-Ray, CF-Visitor, and CF-IPCountry) if the incoming request is not from a valid CloudFlare IP address (https://www.cloudflare.com/ips). This ensures that bad actors cannot spoof CloudFlare headers and impersonate a different connecting IP address or other information.
 
+
+Always Online
+-------------
+
+To use CloudFlare's AlwaysOnline feature, you will need to be using a reverse proxy such as varnish. To trigger always-online, you'll need to serve a 520 in place of 500 and 503 errors. To do this, put the following in your varnish config file:
+
+```
+sub vcl_deliver {
+  # If proxying via cloudflare, then send 520 responses in place of 500/503
+  if ((resp.status == 500 || resp.status == 503) && req.http.cf-connecting-ip) {
+    set resp.status = 520;
+  }
+}
+```
