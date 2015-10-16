@@ -1,8 +1,21 @@
 <?php
 
 /**
+ * @file
+ * Install file for Cloudflare.
+ */
+
+/**
  * cloudflare module now implements hook_boot. Add the boot flag in the systems table.
  */
 function cloudflare_update_7001() {
   db_update('system')->fields(array('bootstrap' => 1))->condition('name', 'cloudflare')->execute();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function cloudflare_uninstall() {
+  variable_del('cloudflare_api_email');
+  variable_del('cloudflare_api_key');
 }
