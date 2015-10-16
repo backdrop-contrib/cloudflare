@@ -52,7 +52,7 @@ function cloudflare_boot() {
 
   // Properly flag the request as a HTTPS request if CloudFlare's flexible SSL is being used
   if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' && empty($_SERVER['HTTPS'])) {
-    if ($trusted || in_array($connecting_ip, $reverse_proxy_addresses) || ip_address_in_range($connecting_ip, cloudflare_ips())) {
+    if ($trusted || in_array($connecting_ip, $reverse_proxy_addresses) || cloudflare_ip_address_in_range($connecting_ip, cloudflare_ip_ranges())) {
       $_SERVER['HTTPS'] = 'on';
     }
   }
