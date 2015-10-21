@@ -49,6 +49,7 @@ function cloudflare_boot() {
       $_SERVER[$reverse_proxy_header] = implode(',', $good_ips);
     }
   }
+  drupal_static_reset('ip_address');
 
   // Properly flag the request as a HTTPS request if CloudFlare's flexible SSL is being used
   if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' && empty($_SERVER['HTTPS'])) {
@@ -62,6 +63,17 @@ function cloudflare_boot() {
     drupal_add_http_header('Cache-Control', 'public, max-age=86400');
     drupal_add_http_header('Vary', 'User-Agent');
   }
+}
+
+/**
+ * Implements hook_enable()
+ */
+function cloudflare_enable() {
+    db_update('system')
+    ->fields(array('weight' => -500))
+    ->condition('type', 'module')
+    ->condition('name', 'cloudflare')
+    ->execute();
 }
 
 /**
