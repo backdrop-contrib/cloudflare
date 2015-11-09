@@ -556,6 +556,7 @@ function cloudflare_ip_ranges() {
   else {
     $ip_blocks = file_get_contents(CLOUDFLARE_URL_IPV4_RANGE);
     $cloudflare_ips = explode("\n", $ip_blocks);
+    $cloudflare_ips = array_filter($cloudflare_ips);
     $cloudflare_ips = array_map('trim', $cloudflare_ips);
 
     cache_set('cloudflare_ip_ranges', $cloudflare_ips);
