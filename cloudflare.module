@@ -581,6 +581,7 @@ function cloudflare_ip_ranges() {
   else {
     $ip_blocks = file_get_contents(CLOUDFLARE_URL_IPV4_RANGE);
     if ($ip_blocks === FALSE) {
+      watchdog('cloudflare', 'Unable to fetch IP address information from cloudflare. Until resolved, IP address detection is non-functional.', NULL, WATCHDOG_ALERT);
       return FALSE;
     }
     $cloudflare_ips = explode("\n", $ip_blocks);
