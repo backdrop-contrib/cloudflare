@@ -14,9 +14,16 @@ function cloudflare_boot() {
   global $conf;
 
   // Assign a proper IP address for end-client connecting via cloudflare using CF-Connecting-IP header
-  if (variable_get('cloudflare_cf_connecting_ip', FALSE)) {
-    $trusted = FALSE;
-    if (!empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
+  if (variable_get('cloudflare_cf_connecting_ip', FALSE) && !empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
+    if (variable_get('cloudflare_cf_connecting_ip') == 'trust') {
+      $connecting_ip = $_SERVER['REMOTE_ADDR'];
+      $_SERVER['ORIG_REMOTE_ADDR'] = $connecting_ip;
+      $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_CF_CONNECTING_IP'];
+      $trusted = TRUE;
+      $conf['reverse_proxy'] = FALSE; // Disable any furthur reverse proxy handling.
+    }
+    else {
+      $trusted = FALSE;
       // If an array of known reverse proxy IPs is provided, then trust
       // the CF header if request really comes from one of them or from a cloudflare IP.
       $reverse_proxy_addresses = variable_get('reverse_proxy_addresses', array());
@@ -108,19 +115,37 @@ function cloudflare_permission() {
 function cloudflare_admin() {
   $form = array();
 
+  $form['ip_address_handling'] = array(
+    '#type' => 'fieldset', 
+    '#title' => 'IP Address Detection', 
+    '#description' => t('<p>By default the X-Forwarded-For header is used determine the end-users IP address (default option). However, given the need to check forwarded IPs against a long list of trusted cloudflare IP ranges, this can increase load time and resource use on the server. </p>
+
+      <p>You can also choose to use CF-Connecting-IP and continue to verify the header against trusted IP addresses (second option). </p>
+
+      <p>The best option is to use CF-Connecting-IP and trust that the header is coming from a CloudFlare IP address (third option). While this option is the best in terms of resource usage and load time, for it to be secure your server either needs to only be accessible from CloudFlare, or have an upstream reverse proxy (such as varnish) that will verify that the request is coming from cloudflare if this header is present.</p>'), 
+  );
+
+  $form['ip_address_handling']['cloudflare_cf_connecting_ip'] = array(
+    '#type' => 'radios', 
+    '#options' => array(
+      '0' => t('Use X-Forwarded-For header'),
+      'verify' => t('Use CF-Connecting-IP header, but verify the header'),
+      'trust' => t('Use CF-Connecting-IP header, and trust the header'), 
+    ),
+    '#default_value' => variable_get('cloudflare_cf_connecting_ip', '0'),
+  );
+
   $form['cloudflare_api_email'] = array(
     '#type' => 'textfield',
     '#title' => t('E-mail address'),
     '#description' => t('Email address for your Cloudflare account.  You can find it on the ').l(t('Account Tab'), 'https://www.cloudflare.com/my-account.html'),
     '#default_value' => variable_get('cloudflare_api_email', ''),
-    '#required' => TRUE,
   );
   $form['cloudflare_api_key'] = array(
     '#type' => 'textfield',
     '#title' => t('API key'),
     '#description' => t('API key for your Cloudflare account.  You can find it on the ').l(t('Account Tab'), 'https://www.cloudflare.com/my-account.html'),
     '#default_value' => variable_get('cloudflare_api_key', ''),
-    '#required' => TRUE,
   );
   return system_settings_form($form);
 }
