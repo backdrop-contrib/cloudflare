@@ -593,12 +593,12 @@ function cloudflare_ip_ranges() {
 * Given an IP range like 8.8.8.0/24, check to see if an IP address is in it
 */
 function cloudflare_ip_address_in_range($checkip, $range = FALSE) {
-  if (!$range) {
+  if ($range === FALSE) {
     $range = cloudflare_ip_ranges();
   }
   if (is_array($range)) {
     foreach ($range as $ip_range) {
-      if (cloudflare_ip_address_in_range($checkip, $ip_range)) {
+      if (!empty($ip_range) && cloudflare_ip_address_in_range($checkip, $ip_range)) {
         return TRUE;
       }
     }
