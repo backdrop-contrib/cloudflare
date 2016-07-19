@@ -62,6 +62,10 @@ function cloudflare_boot() {
   if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' && empty($_SERVER['HTTPS'])) {
     if ($trusted || in_array($connecting_ip, $reverse_proxy_addresses) || cloudflare_ip_address_in_range($connecting_ip, cloudflare_ip_ranges())) {
       $_SERVER['HTTPS'] = 'on';
+      $conf['https'] = TRUE;
+      if (substr($GLOBALS['base_url'], 0, 7) === "http://") {
+        $GLOBALS['base_url'] = 'https://' . substr($GLOBALS['base_url'], 7);
+      }
     }
   }
 
