@@ -10,11 +10,18 @@ define('CLOUDFLARE_ALWAYSONLINE_USER_AGENT', 'Mozilla/5.0 (compatible; CloudFlar
 * Properly flag $_SERVER['HTTPS'] and set the base-url correctly if cloudflare is using flexible SSL 
 */
 function cloudflare_boot() {
+  // This function might be invoked twice if flexible SSL support is enabled
+  // So make sure it is only ever run once.
   static $run_once = TRUE;
   if ($run_once) {
     $run_once = FALSE;
   }
   else {
+    return;
+  }
+
+  // Only run if this is a CloudFlare request
+  if (empty($_SERVER['HTTP_CF_RAY'])) {
     return;
   }
 
