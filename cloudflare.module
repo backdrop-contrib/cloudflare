@@ -80,7 +80,9 @@ function cloudflare_boot() {
         }
       }
       else {
-        drupal_set_message("CloudFlare SSL Error: CloudFlare SSL handling is not properly enabled. Please review readme.txt in the CloudFlare module.", 'error');
+        $parts = pathinfo(drupal_get_filename('module', 'cloudflare'));
+        $include = 'require_once("' . $parts['dirname'] . '/cloudflare.https.inc");';
+        drupal_set_message("CloudFlare SSL Error: CloudFlare HTTPS handling is not properly enabled. Add the following to your settings.php:<br/> <code style='font-family: monospace;'>$include</code>", 'error');
       }
     }
   }
