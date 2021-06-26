@@ -1,4 +1,5 @@
 CloudFlare is a FREE reverse proxy, firewall, and global content delivery network and can be implemented without installing any server software or hardware.
+======================
 
 What does this module do?
 -------------------------
@@ -18,13 +19,31 @@ How do I get started with CloudFlare?
    A. Install and Enable this module.
    B. Assign permissions to administer module (if you are not logged in as the user 1, admin)
    C. Save your email address and CloudFlare API key to the CloudFlare administration screen on your Drupal web site (admin/settings/cloudflare).
-   D. Configure IP address detection as instructed below
+   D. Configure IP address detection as instructed below.
 
+
+Requirements
+------------
+
+This module requires that the following modules are also enabled:
+
+- None
+
+Installation
+------------
+
+- Install this module using the official Backdrop CMS instructions at
+  https://backdropcms.org/guide/modules.
+
+- Visit the configuration page under Administration > Configuration > Category >
+  Cloudflare (admin/config/system/cloudflare) and enter the required information.
+
+- Any additional steps.
 
 IP Address detection
 --------------------
 
-Because your site will be proxied via CloudFlare, the global variable $_SERVER["REMOTE_ADDR"] will contain a CloudFlare IP address, not the client IP.  There are two ways this can be corrected. 
+Because your site will be proxied via CloudFlare, the global variable $_SERVER["REMOTE_ADDR"] will contain a CloudFlare IP address, not the client IP.  There are two ways this can be corrected.
 
 
 # Default Method: Use X-Forwarded-For Headers
@@ -32,7 +51,7 @@ Because your site will be proxied via CloudFlare, the global variable $_SERVER["
 The CloudFlare module will automatically modify the incoming $_SERVER["HTTP_X_FORWARDED_FOR"] header to remove CloudFlare IPs from the list of possible connecting IP addresses. This means that you can use Drupal's built-in X-Forwarded-For header handling and evertying will "just work". There is no special configuration required for this set-up. If you are using a reverse proxy such as varnish, you can configure your $conf['reverse_proxy_addresses'] array just as before and everything should work as expected.
 
 
-# Alternative Method: Use CF-Connecting-IP header. 
+# Alternative Method: Use CF-Connecting-IP header.
 
 CloudFlare provides a header called CF-Connecting-IP. We can use this header to detect the correct client IP address. When the cloudflare module is configured to use CF-Connecting-IP it will use this to set $_SERVER["REMOTE_ADDR"], and disable the processing of X-Forwarded-For headers. To use this set-up, simply place this code somewhere in your settings.php file:
 
@@ -64,10 +83,45 @@ sub vcl_deliver {
 Agressive Caching
 -----------------
 
-CloudFlare allows aggressive caching of HTML pages via custom page-rules. If you enable this option in your CloudFlare settings CloudFlare will serve the entire page out of cache, omitting a call to Drupal entirely. This can be problematic if logged-in users (or admin users) see the page differently than regular users. An example of this would be menus that only logged in users can see. In this case it's quite possible for CloudFlare to aggressively cache the "logged-in user" view of the page and serve everyone this view!   
+CloudFlare allows aggressive caching of HTML pages via custom page-rules. If you enable this option in your CloudFlare settings CloudFlare will serve the entire page out of cache, omitting a call to Drupal entirely. This can be problematic if logged-in users (or admin users) see the page differently than regular users. An example of this would be menus that only logged in users can see. In this case it's quite possible for CloudFlare to aggressively cache the "logged-in user" view of the page and serve everyone this view!
 
 There are two ways to fix this:
 
-1. Set up a different domain name for administrative users. For example, you would have both admin.example.com and www.example.com pointing to the same drupal site, and you would instruct your admin users to use admin.example.com.  In your cloudflare settings you would turn off cloudflare for admin.example.com but keep it enabled for the regular www.example.com. 
+1. Set up a different domain name for administrative users. For example, you would have both admin.example.com and www.example.com pointing to the same drupal site, and you would instruct your admin users to use admin.example.com.  In your cloudflare settings you would turn off cloudflare for admin.example.com but keep it enabled for the regular www.example.com.
 
 2. Disable aggressive page caching. If you *must* allow users to login via the same domain as anonymous users, then aggressive caching likely isn’t for you unless you have the skill to implement AJAX based menus and user-dependent content. Generally in this situation aggressive page caching shouldn't be used.
+
+
+
+Documentation
+-------------
+
+Additional documentation is located in the Wiki:
+https://github.com/backdrop-contrib/Cloudflare/wiki.
+
+Issues
+------
+
+Bugs and Feature requests should be reported in the Issue Queue:
+https://github.com/backdrop-contrib/Cloudflare/issues.
+
+Current Maintainers
+-------------------
+
+- [Jen Lampton](https://github.com/jenlampton).
+- [Justin Christoffersen](https://github.com/jenlampton).
+- Seeking additional maintainers.
+
+Credits
+-------
+
+- Ported to Backdrop CMS by [Justin Christoffersen](https://github.com/jenlampton).
+- Originally written for Drupal by [Brian Stevenson](https://www.drupal.org/u/brian294).
+- Backdrop port sponsored by [Ivar Jacoboen International](https://www.ivarjacobson.com).
+- Drupal maintenance sponsored by [Acquia](https://www.drupal.org/acquia)
+
+License
+-------
+
+This project is GPL v2 software.
+See the LICENSE.txt file in this directory for complete text.
