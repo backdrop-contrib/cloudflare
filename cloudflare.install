@@ -5,24 +5,45 @@
  * Install file for Cloudflare.
  */
 
-/**
- * cloudflare module now implements hook_boot. Add the boot flag in the systems table.
- */
-function cloudflare_update_7001() {
-  db_update('system')->fields(array('bootstrap' => 1))->condition('type', 'module')->condition('name', 'cloudflare')->execute();
-}
+// TODO The old hook_update_N functions cannot be applied to Backdrop.
+function cloudflare_update_7001() { }
 
-/**
- * cloudflare module now implements hook_boot. Add the boot flag in the systems table.
- */
-function cloudflare_update_7002() {
-  db_update('system')->fields(array('weight' => -500))->condition('type', 'module')->condition('name', 'cloudflare')->execute();
-}
+// TODO The old hook_update_N functions cannot be applied to Backdrop.
+function cloudflare_update_7002() { }
 
 /**
  * Implements hook_uninstall().
  */
 function cloudflare_uninstall() {
-  variable_del('cloudflare_api_email');
-  variable_del('cloudflare_api_key');
+  config_clear('cloudflare.settings', 'cloudflare_api_email');
+  config_clear('cloudflare.settings', 'cloudflare_api_key');
+}
+
+/**
+ * Implements hook_update_last_removed().
+ */
+function cloudflare_update_last_removed() {
+  return 7002;
+}
+
+/**
+ * Migrate cloudflare variables to config.
+ */
+function cloudflare_update_1000() {
+  $config = config('cloudflare.settings');
+  $config->set('cloudflare_cf_connecting_ip', update_variable_get('cloudflare_cf_connecting_ip', '0'));
+  $config->set('cloudflare_api_email', update_variable_get('cloudflare_api_email', ''));
+  $config->set('cloudflare_api_key', update_variable_get('cloudflare_api_key', ''));
+  $config->save();
+
+  update_variable_del('cloudflare_cf_connecting_ip');
+  update_variable_del('cloudflare_api_email');
+  update_variable_del('cloudflare_api_key');
+}
+
+/**
+ * Implements hook_install().
+ */
+function cloudflare_install() {
+  // Dynamically generated variable data was detected.
 }
