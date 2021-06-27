@@ -6,6 +6,17 @@
  */
 
 /**
+ * Implements hook_enable().
+ */
+function cloudflare_enable() {
+  db_update('system')
+    ->fields(array('weight' => -500))
+    ->condition('type', 'module')
+    ->condition('name', 'cloudflare')
+    ->execute();
+}
+
+/**
  * Implements hook_uninstall().
  */
 function cloudflare_uninstall() {
