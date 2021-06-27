@@ -141,13 +141,13 @@ function cloudflare_menu() {
     'page callback' => 'backdrop_get_form',
     'page arguments' => array('cloudflare_admin'),
     'access arguments' => array('administer cloudflare'),
-    'description' => t('Configure the Cloudflare settings.'),
+    'description' => 'Configure the Cloudflare settings.',
   );
   return $items;
 }
 
 /**
- * cloudflare_menu() page callback function.
+ * Cloudflare_menu() page callback function.
  */
 function cloudflare_admin() {
   $config = config('cloudflare.settings');
