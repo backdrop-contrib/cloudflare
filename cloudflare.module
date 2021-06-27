@@ -235,7 +235,7 @@ function cloudflare_ip_address_in_range($checkip, $range = FALSE) {
     return FALSE;
   }
 
-  list(@$ip, $len) = explode('/', $range);
+  list($ip, $len) = explode('/', $range);
 
   if (($min = ip2long($ip)) !== false && !is_null($len)) {
     $clong = ip2long($checkip);
@@ -248,4 +248,3 @@ function cloudflare_ip_address_in_range($checkip, $range = FALSE) {
     }
   }
 }
-
