@@ -25,7 +25,7 @@ function cloudflare_boot() {
   // This function might be invoked twice if flexible SSL support is enabled
   // So make sure it is only ever run once.
   static $run_once = TRUE;
-  
+
   if ($run_once) {
     $run_once = FALSE;
   }
@@ -201,7 +201,9 @@ function cloudflare_admin_submit($form, &$form_state) {
  * Get a list of cloudflare IP Ranges
  */
 function cloudflare_ip_ranges() {
-  if ($cache = cache_get('cloudflare_ip_ranges')) {
+  if (cache_get('cloudflare_ip_ranges')) {
+    $cache = cache_get('cloudflare_ip_ranges');
+
     return $cache->data;
   }
   else {
@@ -211,11 +213,12 @@ function cloudflare_ip_ranges() {
       watchdog('cloudflare', 'Unable to fetch IP address information from cloudflare. Until resolved, IP address detection is non-functional.', NULL, WATCHDOG_ALERT);
       return FALSE;
     }
+
     $cloudflare_ips = explode("\n", $ip_blocks);
     $cloudflare_ips = array_filter($cloudflare_ips);
     $cloudflare_ips = array_map('trim', $cloudflare_ips);
-
     cache_set('cloudflare_ip_ranges', $cloudflare_ips);
+
     return $cloudflare_ips;
   }
 }
