@@ -26,6 +26,7 @@ function cloudflare_config_info() {
  * is using flexible SSL.
  */
 function cloudflare_boot() {
+  global $base_url, $conf;
   $config = config('cloudflare.settings');
   // This function might be invoked twice if flexible SSL support is enabled
   // So make sure it is only ever run once.
@@ -42,9 +43,6 @@ function cloudflare_boot() {
   if (empty($_SERVER['HTTP_CF_RAY'])) {
     return;
   }
-
-  global $base_url;
-  global $conf;
 
   // Assign a proper IP address for end-client connecting via cloudflare using
   // CF-Connecting-IP header.
@@ -82,10 +80,12 @@ function cloudflare_boot() {
     // This ensures that the end-user IP address is never identified as a
     // CloudFlare IP.
     $reverse_proxy_header = settings_get('reverse_proxy_header', 'HTTP_X_FORWARDED_FOR');
+
     if (!empty($_SERVER[$reverse_proxy_header])) {
       $forwarded = explode(',', $_SERVER[$reverse_proxy_header]);
       $forwarded = array_map('trim', $forwarded);
       $good_ips = array();
+
       foreach ($forwarded as $ip) {
         if (!cloudflare_ip_address_in_range($ip)) {
           $good_ips[] = $ip;
@@ -106,9 +106,9 @@ function cloudflare_boot() {
         $_SERVER['HTTPS'] = 'on';
         $conf['https'] = TRUE;
 
-        if (substr($GLOBALS['base_url'], 0, 7) === "http://") {
-          $GLOBALS['base_url'] = 'https://' . substr($GLOBALS['base_url'], 7);
-          $GLOBALS['base_secure_url'] = $GLOBALS['base_url'];
+        if (substr($base_url, 0, 7) === "http://") {
+          $base_url = 'https://' . substr($base_url, 7);
+          $GLOBALS['base_secure_url'] = $base_url;
           $GLOBALS['is_https'] = TRUE;
         }
       }
