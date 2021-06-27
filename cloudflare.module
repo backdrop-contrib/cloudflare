@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Cloudflare module.
+ */
 
 define('CLOUDFLARE_URL_IPV4_RANGE', 'https://www.cloudflare.com/ips-v4');
 define('CLOUDFLARE_ALWAYSONLINE_USER_AGENT', 'Mozilla/5.0 (compatible; CloudFlare-AlwaysOnline/1.0; +http://www.cloudflare.com/always-online) AppleWebKit/534.34');
@@ -18,7 +22,8 @@ function cloudflare_config_info() {
  * Implements hook_boot().
  *
  * Replace $_SERVER['REMOTE_ADDR'] with $_SERVER['HTTP_CF_CONNECTING_IP'] header
- * Properly flag $_SERVER['HTTPS'] and set the base-url correctly if cloudflare is using flexible SSL
+ * Properly flag $_SERVER['HTTPS'] and set the base-url correctly if cloudflare
+ * is using flexible SSL.
  */
 function cloudflare_boot() {
   $config = config('cloudflare.settings');
@@ -178,14 +183,18 @@ function cloudflare_admin() {
   $form['cloudflare_api_key'] = array(
     '#type' => 'textfield',
     '#title' => t('API key'),
-    '#description' => t('API key for your Cloudflare account.  You can find it on the ') . l(t('Account Tab'), 'https://www.cloudflare.com/my-account.html'),
+    '#description' => sprintf('%s %s',
+      t('API key for your Cloudflare account. You can find it on the'),
+      l(t('Account Tab'), 'https://www.cloudflare.com/my-account.html')
+    ),
     '#default_value' => $config->get('cloudflare_api_key'),
   );
   return system_settings_form($form);
 }
 
-
 /**
+ * Admin submit handler.
+ *
  * @todo Please document this function.
  * @see http://drupal.org/node/1354
  */
@@ -196,9 +205,8 @@ function cloudflare_admin_submit($form, &$form_state) {
   config_set('cloudflare.settings', 'cloudflare_api_key', $form_values['api_key']);
 }
 
-
 /**
- * Get a list of cloudflare IP Ranges
+ * Get a list of cloudflare IP Ranges.
  */
 function cloudflare_ip_ranges() {
   if (cache_get('cloudflare_ip_ranges')) {
@@ -224,13 +232,14 @@ function cloudflare_ip_ranges() {
 }
 
 /**
- * Given an IP range like 8.8.8.0/24, check to see if an IP address is in it
+ * Given an IP range like 8.8.8.0/24, check to see if an IP address is in it.
  */
 function cloudflare_ip_address_in_range($checkip, $range = FALSE) {
   if ($range === FALSE) {
     $range = cloudflare_ip_ranges();
 
-    if ($range === FALSE) { // unable to determine cloudflare IP ranges
+    // Unable to determine cloudflare IP ranges.
+    if ($range === FALSE) {
       return FALSE;
     }
   }
@@ -246,9 +255,9 @@ function cloudflare_ip_address_in_range($checkip, $range = FALSE) {
 
   list($ip, $len) = explode('/', $range);
 
-  if (($min = ip2long($ip)) !== false && !is_null($len)) {
+  if (($min = ip2long($ip)) !== FALSE && !is_null($len)) {
     $clong = ip2long($checkip);
-    $max = ($min | (1 << (32 -$len)) -1);
+    $max = ($min | (1 << (32 - $len)) - 1);
 
     if ($clong > $min && $clong < $max) {
       return TRUE;
