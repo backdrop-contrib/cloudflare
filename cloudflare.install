@@ -5,25 +5,12 @@
  * Install file for Cloudflare.
  */
 
-// TODO The old hook_update_N functions cannot be applied to Backdrop.
-function cloudflare_update_7001() { }
-
-// TODO The old hook_update_N functions cannot be applied to Backdrop.
-function cloudflare_update_7002() { }
-
 /**
  * Implements hook_uninstall().
  */
 function cloudflare_uninstall() {
   config_clear('cloudflare.settings', 'cloudflare_api_email');
   config_clear('cloudflare.settings', 'cloudflare_api_key');
-}
-
-/**
- * Implements hook_update_last_removed().
- */
-function cloudflare_update_last_removed() {
-  return 7002;
 }
 
 /**
@@ -39,11 +26,4 @@ function cloudflare_update_1000() {
   update_variable_del('cloudflare_cf_connecting_ip');
   update_variable_del('cloudflare_api_email');
   update_variable_del('cloudflare_api_key');
-}
-
-/**
- * Implements hook_install().
- */
-function cloudflare_install() {
-  // Dynamically generated variable data was detected.
 }
