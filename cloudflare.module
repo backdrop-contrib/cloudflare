@@ -38,7 +38,7 @@ function cloudflare_boot() {
     return;
   }
 
-  // Only run if this is a CloudFlare request
+  // Only run if this is a CloudFlare request.
   if (empty($_SERVER['HTTP_CF_RAY'])) {
     return;
   }
@@ -46,19 +46,22 @@ function cloudflare_boot() {
   global $base_url;
   global $conf;
 
-  // Assign a proper IP address for end-client connecting via cloudflare using CF-Connecting-IP header
+  // Assign a proper IP address for end-client connecting via cloudflare using
+  // CF-Connecting-IP header.
   if ($config->get('cloudflare_cf_connecting_ip') && !empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
     if ($config->get('cloudflare_cf_connecting_ip') == 'trust') {
       $connecting_ip = $_SERVER['REMOTE_ADDR'];
       $_SERVER['ORIG_REMOTE_ADDR'] = $connecting_ip;
       $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_CF_CONNECTING_IP'];
       $trusted = TRUE;
-      $conf['reverse_proxy'] = FALSE; // Disable any furthur reverse proxy handling.
+      // Disable any furthur reverse proxy handling.
+      $conf['reverse_proxy'] = FALSE;
     }
     else {
       $trusted = FALSE;
       // If an array of known reverse proxy IPs is provided, then trust
-      // the CF header if request really comes from one of them or from a cloudflare IP.
+      // the CF header if request really comes from one of them or from a
+      // cloudflare IP.
       $reverse_proxy_addresses = settings_get('reverse_proxy_addresses', array());
       $connecting_ip = $_SERVER['REMOTE_ADDR'];
 
@@ -66,16 +69,18 @@ function cloudflare_boot() {
         $_SERVER['ORIG_REMOTE_ADDR'] = $connecting_ip;
         $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_CF_CONNECTING_IP'];
         $trusted = TRUE;
-        $conf['reverse_proxy'] = FALSE; // Disable any furthur reverse proxy handling.
+        // Disable any furthur reverse proxy handling.
+        $conf['reverse_proxy'] = FALSE;
       }
     }
   }
-  // If we are not configured to use CF-Connecting-IP then use X-Forwarded-For instead
-  // This is the recommended method and is used by default.
   else {
+    // If we are not configured to use CF-Connecting-IP then use X-Forwarded-For
+    // instead This is the recommended method and is used by default.
     $conf['reverse_proxy'] = TRUE;
     // Remove CloudFlare IP addresses from X-Forwarded-For header.
-    // This ensures that the end-user IP address is never identified as a CloudFlare IP.
+    // This ensures that the end-user IP address is never identified as a
+    // CloudFlare IP.
     $reverse_proxy_header = settings_get('reverse_proxy_header', 'HTTP_X_FORWARDED_FOR');
     if (!empty($_SERVER[$reverse_proxy_header])) {
       $forwarded = explode(',', $_SERVER[$reverse_proxy_header]);
@@ -91,7 +96,8 @@ function cloudflare_boot() {
   }
   backdrop_static_reset('ip_address');
 
-  // Properly flag the request as a HTTPS request if CloudFlare's flexible SSL is being used
+  // Properly flag the request as a HTTPS request if CloudFlare's flexible SSL
+  // is being used.
   if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' && empty($_SERVER['HTTPS'])) {
     if ($trusted || in_array($connecting_ip, $reverse_proxy_addresses) || cloudflare_ip_address_in_range($connecting_ip, cloudflare_ip_ranges())) {
       global $_cloudflare_ssl_handling;
@@ -114,7 +120,7 @@ function cloudflare_boot() {
     }
   }
 
-  // Check for AlwaysOnline spider and set appropriate cache-control headers
+  // Check for AlwaysOnline spider and set appropriate cache-control headers.
   if (!empty($_SERVER['HTTP_USER_AGENT'])   && $_SERVER['HTTP_USER_AGENT'] == CLOUDFLARE_ALWAYSONLINE_USER_AGENT) {
     backdrop_add_http_header('Cache-Control', 'public, max-age=86400');
     backdrop_add_http_header('Vary', 'User-Agent');
