@@ -1,5 +1,7 @@
-CloudFlare is a FREE reverse proxy, firewall, and global content delivery network and can be implemented without installing any server software or hardware.
+CloudFlare
 ======================
+
+CloudFlare is a FREE reverse proxy, firewall, and global content delivery network and can be implemented without installing any server software or hardware.
 
 What does this module do?
 -------------------------
