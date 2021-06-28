@@ -191,7 +191,7 @@ function cloudflare_admin() {
         'attributes' => array(
           'target' => '_blank',
         ),
-      )),
+      ))
     ),
     '#default_value' => $config->get('cloudflare_api_key'),
   );
