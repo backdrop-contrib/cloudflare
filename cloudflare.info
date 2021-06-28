@@ -3,4 +3,4 @@ description = "Administer your Cloudflare account by reporting Threats and Spam.
 package = "Spam control"
 backdrop = 1.x
 type = module
-configure = admin/config/people/cloudflare
+configure = admin/config/system/cloudflare
