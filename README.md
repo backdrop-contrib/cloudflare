@@ -121,12 +121,9 @@ Credits
 - Originally written for Drupal by [Brian Stevenson](https://www.drupal.org/u/brian294).
 - Backdrop port sponsored by [Ivar Jacoboen International](https://www.ivarjacobson.com).
 - Drupal maintenance sponsored by [Acquia](https://www.drupal.org/acquia)
-- Drupal module maintainers:
-   - [Vijay Mani](https://www.drupal.org/u/vijaycs85)
-   - [Patrick Hayes](https://www.drupal.org/u/phayes)
-   - [Adam Weingarten](https://www.drupal.org/u/adamweingarten)
-   - [Wim Leers](https://www.drupal.org/u/wim-leers)
-   - [Brian Stevenson ](https://www.drupal.org/u/brian294)
+- Drupal module maintainers: [Vijay Mani](https://www.drupal.org/u/vijaycs85),
+[Patrick Hayes](https://www.drupal.org/u/phayes), [Adam Weingarten](https://www.drupal.org/u/adamweingarten),
+[Wim Leers](https://www.drupal.org/u/wim-leers) and [Brian Stevenson ](https://www.drupal.org/u/brian294).
 
 License
 -------
