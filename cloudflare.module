@@ -174,7 +174,7 @@ function cloudflare_admin() {
     '#title' => t('E-mail address'),
     '#description' => sprintf('%s %s.',
       t('E-mail address for your Cloudflare account. You can find it on the'),
-      l(t('Account Tab'), 'https://www.cloudflare.com/my-account.html', array(
+      l(t('Communications Tab of Profile section'), 'https://dash.cloudflare.com/profile', array(
         'attributes' => array(
           'target' => '_blank',
         ),
@@ -187,15 +187,21 @@ function cloudflare_admin() {
     '#title' => t('API key'),
     '#description' => sprintf('%s %s.',
       t('API key for your Cloudflare account. You can find it on the'),
-      l(t('Account Tab'), 'https://www.cloudflare.com/my-account.html', array(
+      l(t('API Tokens Tab'), 'https://dash.cloudflare.com/profile/api-tokens', array(
         'attributes' => array(
           'target' => '_blank',
         ),
       ))
     ),
-    '#default_value' => $config->get('cloudflare_api_key'),
+    '#default_value' => state_get('cloudflare_api_key'),
   );
-  return system_settings_form($form);
+
+  $form['cloudflare'] = array(
+    '#type' => 'submit',
+    '#value' => 'Save',
+  );
+
+  return $form;
 }
 
 /**
@@ -206,9 +212,12 @@ function cloudflare_admin() {
  */
 function cloudflare_admin_submit($form, &$form_state) {
   $form_values = $form_state['values'];
-  config_set('cloudflare.settings', 'cloudflare_cf_connecting_ip', $form_values['cloudflare_cf_connecting_ip']);
-  config_set('cloudflare.settings', 'cloudflare_api_email', $form_values['api_email']);
-  config_set('cloudflare.settings', 'cloudflare_api_key', $form_values['api_key']);
+  state_set('cloudflare_api_key', $form_values['cloudflare_api_key']);
+
+  $config = config('cloudflare.settings');
+  $config->set('cloudflare_cf_connecting_ip', $form_values['cloudflare_cf_connecting_ip']);
+  $config->set('cloudflare_api_email', $form_values['cloudflare_api_email']);
+  $config->save();
 }
 
 /**
