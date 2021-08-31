@@ -20,21 +20,39 @@ function cloudflare_enable() {
  * Implements hook_uninstall().
  */
 function cloudflare_uninstall() {
-  config_clear('cloudflare.settings', 'cloudflare_api_email');
-  config_clear('cloudflare.settings', 'cloudflare_api_key');
+  state_del('cloudflare_api_email');
+  state_del('cloudflare_api_key');
 }
 
 /**
- * Migrate cloudflare variables to config.
+ * Migrate cloudflare variables to state storage.
  */
 function cloudflare_update_1000() {
-  $config = config('cloudflare.settings');
-  $config->set('cloudflare_cf_connecting_ip', update_variable_get('cloudflare_cf_connecting_ip', '0'));
-  $config->set('cloudflare_api_email', update_variable_get('cloudflare_api_email', ''));
-  $config->set('cloudflare_api_key', update_variable_get('cloudflare_api_key', ''));
-  $config->save();
-
+  state_set('cloudflare_cf_connecting_ip', update_variable_get('cloudflare_cf_connecting_ip', '0'));
+  state_set('cloudflare_api_email', update_variable_get('cloudflare_api_email', ''));
+  state_set('cloudflare_api_key', update_variable_get('cloudflare_api_key', ''));
   update_variable_del('cloudflare_cf_connecting_ip');
   update_variable_del('cloudflare_api_email');
   update_variable_del('cloudflare_api_key');
+}
+
+/**
+ * Migrate cloudflare configuration from config.settings to state storage.
+ */
+function cloudflare_update_1001() {
+  $config = config('cloudflare.settings');
+  $config_email = $config->get('cloudflare_api_email');
+  $config_api = $config->get('cloudflare_api_key');
+
+  if (!empty($config_email)) {
+    state_set('cloudflare_api_email', $config_email);
+    $config->clear('cloudflare_api_email');
+    $config->save();
+  }
+
+  if (!empty($config_api)) {
+    state_set('cloudflare_api_key', $config_api);
+    $config->clear('cloudflare_api_key');
+    $config->save();
+  }
 }
