@@ -195,7 +195,13 @@ function cloudflare_admin() {
     ),
     '#default_value' => state_get('cloudflare_api_key'),
   );
-  return system_settings_form($form);
+
+  $form['cloudflare'] = array(
+    '#type' => 'submit',
+    '#value' => 'Save',
+  );
+
+  return $form;
 }
 
 /**
@@ -206,11 +212,12 @@ function cloudflare_admin() {
  */
 function cloudflare_admin_submit($form, &$form_state) {
   $form_values = $form_state['values'];
+  state_set('cloudflare_api_key', $form_values['cloudflare_api_key']);
+
   $config = config('cloudflare.settings');
   $config->set('cloudflare_cf_connecting_ip', $form_values['cloudflare_cf_connecting_ip']);
-  $config->set('cloudflare_api_email', $form_values['api_email']);
+  $config->set('cloudflare_api_email', $form_values['cloudflare_api_email']);
   $config->save();
-  state_set('cloudflare_api_key', $form_values['api_key']);
 }
 
 /**
