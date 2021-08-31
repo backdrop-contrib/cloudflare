@@ -166,7 +166,7 @@ function cloudflare_admin() {
       'verify' => t('Use CF-Connecting-IP header, but verify the header'),
       'trust' => t('Use CF-Connecting-IP header, and trust the header'),
     ),
-    '#default_value' => state_get('cloudflare_cf_connecting_ip'),
+    '#default_value' => $config->get('cloudflare_cf_connecting_ip'),
   );
 
   $form['cloudflare_api_email'] = array(
@@ -193,7 +193,7 @@ function cloudflare_admin() {
         ),
       ))
     ),
-    '#default_value' => $config->get('cloudflare_api_key'),
+    '#default_value' => state_get('cloudflare_api_key'),
   );
   return system_settings_form($form);
 }
