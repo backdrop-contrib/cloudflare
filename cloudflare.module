@@ -174,7 +174,7 @@ function cloudflare_admin() {
     '#title' => t('E-mail address'),
     '#description' => sprintf('%s %s.',
       t('E-mail address for your Cloudflare account. You can find it on the'),
-      l(t('Account Tab'), 'https://www.cloudflare.com/my-account.html', array(
+      l(t('Communications Tab of Profile section'), 'https://dash.cloudflare.com/profile', array(
         'attributes' => array(
           'target' => '_blank',
         ),
@@ -187,7 +187,7 @@ function cloudflare_admin() {
     '#title' => t('API key'),
     '#description' => sprintf('%s %s.',
       t('API key for your Cloudflare account. You can find it on the'),
-      l(t('Account Tab'), 'https://www.cloudflare.com/my-account.html', array(
+      l(t('API Tokens Tab'), 'https://dash.cloudflare.com/profile/api-tokens', array(
         'attributes' => array(
           'target' => '_blank',
         ),
